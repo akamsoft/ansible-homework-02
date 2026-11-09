@@ -1,8 +1,5 @@
 # Домашнее задание к занятию 2 «Работа с Playbook»
 
-**Репозиторий:** https://github.com/akamsoft/ansible-homework-02
-**Тег:** [08-ansible-02-playbook](https://github.com/akamsoft/ansible-homework-02/releases/tag/08-ansible-02-playbook)
-
 ## 📖 О чём этот playbook
 
 Playbook автоматизирует установку и настройку двух сервисов на серверах под управлением **Rocky Linux 9**:
