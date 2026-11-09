@@ -114,6 +114,8 @@ ansible-playbook -i inventory/prod.yml site.yml --skip-tags configure
 
 ![Alt text](images/1.jpg)
 
+![Alt text](images/2.jpg)
+
 ### 2. Проверка синтаксиса и линтинг
 
 ```bash
