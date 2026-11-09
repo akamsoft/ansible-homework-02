@@ -1,6 +1,7 @@
 ---
 - name: Install Clickhouse
   hosts: clickhouse
+  tags: clickhouse
   handlers:
     - name: Start clickhouse service
       become: true
@@ -12,56 +13,90 @@
       ansible.builtin.get_url:
         url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.x86_64.rpm"
         dest: "./{{ item }}-{{ clickhouse_version }}.x86_64.rpm"
+        mode: '0644'
       with_items:
         - clickhouse-client
         - clickhouse-server
+      tags: install
 
     - name: Get clickhouse-common-static distrib
       ansible.builtin.get_url:
         url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
         dest: "./clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
+        mode: '0644'
+      tags: install
 
     - name: Install clickhouse packages
       become: true
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name:
           - clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm
           - clickhouse-client-{{ clickhouse_version }}.x86_64.rpm
           - clickhouse-server-{{ clickhouse_version }}.x86_64.rpm
         disable_gpg_check: true
       notify: Start clickhouse service
+      tags: install
 
     - name: Flush handlers
-      meta: flush_handlers
+      ansible.builtin.meta: flush_handlers
+      tags: install
 
     - name: Create database
       ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
       register: create_db
       failed_when: create_db.rc != 0 and create_db.rc != 82
       changed_when: create_db.rc == 0
+      tags: configure
 
 - name: Install and configure Vector
   hosts: vector
   become: true
+  tags: vector
   handlers:
     - name: Restart vector service
-      ansible.builtin.service:
+      ansible.builtin.systemd:
         name: vector
         state: restarted
+        daemon_reload: true
   tasks:
-    - name: Add Vector YUM repository
-      ansible.builtin.yum_repository:
-        name: vector
-        description: Vector repository
-        baseurl: "https://yum.vector.dev/stable/vector-0/$basearch/"
-        gpgcheck: true
-        gpgkey: "https://keys.datadoghq.com/DATADOG_RPM_KEY_CURRENT.public"
-        enabled: true
+    - name: Ensure install directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      loop:
+        - "{{ vector_install_dir }}"
+        - /etc/vector
+        - /var/lib/vector
+      tags: install
 
-    - name: Install Vector
-      ansible.builtin.dnf:
-        name: vector
-        state: present
+    - name: Download Vector archive
+      ansible.builtin.get_url:
+        url: "{{ vector_download_url }}"
+        dest: "/tmp/{{ vector_archive }}"
+        mode: '0644'
+      tags: install
+
+    - name: Unarchive Vector
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ vector_archive }}"
+        dest: "{{ vector_install_dir }}"
+        remote_src: true
+        creates: "{{ vector_bin }}"
+        owner: root
+        group: root
+      tags: install
+
+    - name: Symlink vector binary to /usr/local/bin
+      ansible.builtin.file:
+        src: "{{ vector_bin }}"
+        dest: /usr/local/bin/vector
+        state: link
+        force: true
+        follow: false
+      tags: install
 
     - name: Deploy Vector configuration
       ansible.builtin.template:
@@ -71,9 +106,22 @@
         group: root
         mode: '0644'
       notify: Restart vector service
+      tags: configure
 
-    - name: Ensure Vector is enabled and started
-      ansible.builtin.service:
+    - name: Deploy Vector systemd unit
+      ansible.builtin.template:
+        src: vector.service.j2
+        dest: /etc/systemd/system/vector.service
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart vector service
+      tags: configure
+
+    - name: Ensure Vector is started and enabled
+      ansible.builtin.systemd:
         name: vector
         state: started
         enabled: true
+        daemon_reload: true
+      tags: configure
