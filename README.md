@@ -110,6 +110,8 @@ ansible-playbook -i inventory/prod.yml site.yml --skip-tags configure
 
 ### 1. Подготовка inventory
 
+![Alt text](images/VM.jpg)
+
 Отредактируйте `playbook/inventory/prod.yml`, указав IP-адреса ваших ВМ.
 
 ![Alt text](images/1.jpg)
