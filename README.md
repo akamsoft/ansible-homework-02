@@ -233,7 +233,5 @@ Playbook идемпотентен: повторный запуск не внос
 - **Vector `unarchive`** использует каталог без версии в имени (`vector-x86_64-unknown-linux-gnu`) — это особенность архивов Vector с GitHub Releases. Переменная `vector_bin` учитывает это.
 - **`vector validate`** в версии 0.61.0 не принимает флаг `--config` — используйте позиционный аргумент: `vector validate /etc/vector/vector.yaml` или `vector validate --config-dir /etc/vector/`.
 
-## 📤 Ссылка на решение
-
 - **Репозиторий:** https://github.com/akamsoft/ansible-homework-02
-- **Тег:** https://github.com/akamsoft/ansible-homework-02/releases/tag/08-ansible-02-playbook
+
