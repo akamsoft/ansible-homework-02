@@ -39,3 +39,41 @@
       register: create_db
       failed_when: create_db.rc != 0 and create_db.rc != 82
       changed_when: create_db.rc == 0
+
+- name: Install and configure Vector
+  hosts: vector
+  become: true
+  handlers:
+    - name: Restart vector service
+      ansible.builtin.service:
+        name: vector
+        state: restarted
+  tasks:
+    - name: Add Vector YUM repository
+      ansible.builtin.yum_repository:
+        name: vector
+        description: Vector repository
+        baseurl: "https://yum.vector.dev/stable/vector-0/$basearch/"
+        gpgcheck: true
+        gpgkey: "https://keys.datadoghq.com/DATADOG_RPM_KEY_CURRENT.public"
+        enabled: true
+
+    - name: Install Vector
+      ansible.builtin.dnf:
+        name: vector
+        state: present
+
+    - name: Deploy Vector configuration
+      ansible.builtin.template:
+        src: vector.yml.j2
+        dest: /etc/vector/vector.yaml
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart vector service
+
+    - name: Ensure Vector is enabled and started
+      ansible.builtin.service:
+        name: vector
+        state: started
+        enabled: true
