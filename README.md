@@ -185,31 +185,29 @@ ssh alex@<IP_VECTOR> "sudo systemctl status vector --no-pager; vector validate /
 
 ### Пункт 5. `ansible-lint site.yml` — 0 ошибок
 
-![ansible-lint](images/5-lint.png)
+![ansible-lint](images/4.jpg)
 
 ### Пункт 6. `--check` — ClickHouse
 
-![check clickhouse](images/6-check-clickhouse.png)
+![check clickhouse](images/5.jpg)
 
 ### Пункт 6. `--check` — Vector
 
-![check vector](images/6-check-vector.png)
-
-### Пункт 7. `--diff` — ClickHouse (система уже настроена, `changed=0`)
-
-![diff clickhouse](images/7-diff-clickhouse.png)
+![check vector](images/6.jpg)
 
 ### Пункт 7. `--diff` — Vector (изменён шаблон, `changed=2`, виден дифф)
 
-![diff vector](images/7-diff-vector.png)
+![diff vector](images/7.jpg)
 
 ### Пункт 8. Идемпотентность — ClickHouse (`changed=0`)
 
-![idempotent clickhouse](images/8-idempotent-clickhouse.png)
+![idempotent clickhouse](images/8.jpg)
 
 ### Пункт 8. Идемпотентность — Vector (`changed=0`, `skipped=1`, handler не запущен)
 
-![idempotent vector](images/8-idempotent-vector.png)
+![idempotent vector](images/9.jpg)
+
+![idempotent vector](images/10.jpg)
 
 ## ✅ Идемпотентность
 
