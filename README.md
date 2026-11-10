@@ -47,13 +47,13 @@ all:
     clickhouse:
       hosts:
         clickhouse-01:
-          ansible_host: <IP_CLICKHOUSE>
+          ansible_host: 51.250.94.235
           ansible_user: alex
           ansible_ssh_private_key_file: ~/.ssh/id_ed25519
     vector:
       hosts:
         vector-01:
-          ansible_host: <IP_VECTOR>
+          ansible_host: 51.250.3.88
           ansible_user: alex
           ansible_ssh_private_key_file: ~/.ssh/id_ed25519
 ```
